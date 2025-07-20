@@ -13,65 +13,90 @@ Supports:
 
 🛠️ Fully modular, no external packages (just Go stdlib)
 
-🗂️ Project Structure & File Breakdown
-/cmd/ – Binary Entrypoints
-Path	Description
-ingest-server/main.go	Main TCP server. Initializes config, starts listener, queue, and consumer manager.
-queue-worker/main.go	Optional standalone consumer that reads from disk queue and processes entries (used in recovery or batch jobs).
-recover-dump/main.go	Utility to replay or inspect a corrupted .wal or .queue file for recovery/debugging.
+### Project Structure & File Breakdown
 
-/pkg/ – Core Modules (Reusable, Testable)
-network/ – TCP Handling
-File	Description
-listener.go	Initializes and manages TCP listener. Handles incoming connections via epoll/kqueue (platform-dependent).
-connection.go	Per-connection logic: reads, buffers, error handling.
-socket_opts.go	Low-level TCP options (SO_REUSEADDR, SO_LINGER, TCP_NODELAY).
+`/cmd/ – Binary Entrypoints`
 
-parser/ – Binary Protocol/Message Parsing
-File	Description
-parser.go	Parses incoming binary packet format into a Message struct. Includes framing, length checks.
-checksum.go	CRC32 or SHA256 checksum verification for tamper detection.
+| File	                  | Description                                                                                                     |
+|------------------------|-----------------------------------------------------------------------------------------------------------------|
+| ingest-server/main.go	 | Main TCP server. Initializes config, starts listener, queue, and consumer manager.                              |
+| queue-worker/main.go	  | Optional standalone consumer that reads from disk queue and processes entries (used in recovery or batch jobs). |
+| recover-dump/main.go	  | Utility to replay or inspect a corrupted .wal or .queue file for recovery/debugging.                            |
 
-ringbuffer/ – In-Memory Queue
-File	Description
-ring.go	Lock-free ring buffer queue for in-memory storage before disk flush. Optimized for speed and bounded memory.
+<br />
 
-diskqueue/ – Persistent Queue System
-File	Description
-disk.go	Disk-backed queue that writes to files in blocks.
-wal.go	Write-Ahead Logging system: guarantees recovery after crash.
-rotator.go	Handles rotating disk queue segments for performance and storage limits.
-meta.go	Stores offsets, pointers, and queue state metadata. Ensures queue resumes exactly where it left off.
+### /pkg/ – Core Modules (Reusable, Testable)
+`network/ – TCP Handling`
 
-auth/ – Identity & Authorization
-File	Description
-auth.go	Provides lightweight identity model (users, modules, cores). Handles token validation, scoped access control.
+| File            | 	Description                                                                                              |
+|-----------------|-----------------------------------------------------------------------------------------------------------|
+| listener.go	    | Initializes and manages TCP listener. Handles incoming connections via epoll/kqueue (platform-dependent). |
+| connection.go	  | Per-connection logic: reads, buffers, error handling.                                                     |
+| socket_opts.go	 | Low-level TCP options (SO_REUSEADDR, SO_LINGER, TCP_NODELAY).                                             |
 
-consumer/ – Processing Backends
-File	Description
-manager.go	Central dispatcher that routes messages to enabled consumers.
-disk_writer.go	Writes raw messages to structured file format.
-ai_consumer.go	Optional: routes data to on-board AI models or FPGA-connected inference systems.
-cloud_uploader.go	Pushes batched messages to S3/GCS/etc. when online.
-indexer.go	Updates real-time search or time-series index (e.g. local TSDB or LSM-based DB).
+`parser/ – Binary Protocol/Message Parsing`
 
-telemetry/ – Logging & Metrics
-File	Description
-logger.go	Simple structured logger. Supports stdout, file, or circular memory buffer.
-metrics.go	Tracks ingest rate, queue length, flush latency, and failure rates. Exported via CLI or raw socket.
+| File         | 	Description                                                                                 |
+|--------------|----------------------------------------------------------------------------------------------| 
+| parser.go	   | Parses incoming binary packet format into a Message struct. Includes framing, length checks. |
+| checksum.go	 | CRC32 or SHA256 checksum verification for tamper detection.                                  |
 
-config/ – Runtime Configuration
-File	Description
-config.go	Loads config from environment or file. Exposes TCP port, queue size, disk paths, auth settings, etc.
+`ringbuffer/ – In-Memory Queue`
 
-utils/ – Utilities
-File	Description
-pool.go	Buffer pool to minimize allocs per message.
-time.go	Timestamps, duration helpers, monotonic time logic.
+| File     | 	Description                                                                                                 |
+|----------|--------------------------------------------------------------------------------------------------------------|
+| ring.go	 | Lock-free ring buffer queue for in-memory storage before disk flush. Optimized for speed and bounded memory. |
 
-/internal/ – Private App Bootstrap Code
-Path	Description
-bootstrap/startup.go	Wires everything together: config → server → disk → consumer manager. Contains the full application lifecycle hooks.
+`diskqueue/ – Persistent Queue System`
+
+| File	       | Description                                                                                          |
+|-------------|------------------------------------------------------------------------------------------------------|
+| disk.go	    | Disk-backed queue that writes to files in blocks.                                                    |
+| wal.go	     | Write-Ahead Logging system: guarantees recovery after crash.                                         |
+| rotator.go	 | Handles rotating disk queue segments for performance and storage limits.                             |
+| meta.go	    | Stores offsets, pointers, and queue state metadata. Ensures queue resumes exactly where it left off. |
+
+`auth/ – Identity & Authorization`
+
+| File    | 	Description                                                                                                   |
+|---------|----------------------------------------------------------------------------------------------------------------|
+| auth.go | 	Provides lightweight identity model (users, modules, cores). Handles token validation, scoped access control. |
+
+`consumer/ – Processing Backends`
+
+| File              | 	Description                                                                      |
+|-------------------|-----------------------------------------------------------------------------------|
+| manager.go	       | Central dispatcher that routes messages to enabled consumers.                     |
+| disk_writer.go	   | Writes raw messages to structured file format.                                    |
+| ai_consumer.go    | 	Optional: routes data to on-board AI models or FPGA-connected inference systems. |
+| cloud_uploader.go | 	Pushes batched messages to S3/GCS/etc. when online.                              |
+| indexer.go	       | Updates real-time search or time-series index (e.g. local TSDB or LSM-based DB).  |
+
+`telemetry/ – Logging & Metrics`
+
+| File	      | Description                                                                                          |
+|------------|------------------------------------------------------------------------------------------------------|
+| logger.go	 | Simple structured logger. Supports stdout, file, or circular memory buffer.                          |
+| metrics.go | 	Tracks ingest rate, queue length, flush latency, and failure rates. Exported via CLI or raw socket. |
+
+`config/ – Runtime Configuration`
+
+| File      | 	Description                                                                                          |
+|-----------|-------------------------------------------------------------------------------------------------------|
+| config.go | 	Loads config from environment or file. Exposes TCP port, queue size, disk paths, auth settings, etc. |
+
+`utils/ – Utilities`
+
+| File    | 	Description                                         |
+|---------|------------------------------------------------------|
+| pool.go | 	Buffer pool to minimize allocs per message.         |
+| time.go | 	Timestamps, duration helpers, monotonic time logic. |
+
+`/internal/ – Private App Bootstrap Code`
+
+| Path                  | 	Description                                                                                                         |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------|
+| bootstrap/startup.go	 | Wires everything together: config → server → disk → consumer manager. Contains the full application lifecycle hooks. |
 
 `/data/ – Disk Queue Files`
 
@@ -106,7 +131,6 @@ Message integrity check via CRC or hash.
 Built-in replay attack protection via sequence numbers.
 
 **🚀 Performance Goals**
-* 
 * Component	Target
 * TCP connections	10,000+ simultaneous clients
 * Throughput	≥ 10k packets/sec
