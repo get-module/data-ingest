@@ -10,7 +10,7 @@ build:
 	go build -o bin/recover cmd/recovery/main.go
 
 run:
-	go run cmd/ingest-server/main.go
+	go run cmd/server/main.go
 
 worker:
 	go run cmd/queue-worker/main.go

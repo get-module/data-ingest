@@ -1,9 +1,13 @@
 package main
 
 import (
-	"fmt"
-	)
+	"log"
+	"github.com/get-module/data-ingest/pkg/network"
+)
 
 func main(){
-	fmt.Println("Hello World")
+	err := network.Start(":8080", network.HandleConnection)
+	if err != nil{
+		log.Fatalf("Server error: %v", err)
+	}
 }

@@ -3,18 +3,14 @@ package ringbuffer
 import (
 	"fmt"
 	"github.com/smallnest/ringbuffer"
-	"pkg/config/config"
+	"github.com/get-module/data-ingest/pkg/config/config"
 )
 
 // TODO: replace all instances of 4096 with the CONFIG file read
 // TODO: implement error handling
 
 type RingBuffer struct {
-	buffer [][]byte
-	size   int
-	start  int
-	end    int
-	full   bool
+	buf *ringbuffer.RingBuffer
 }
 
 type RingBufferReturn struct {
