@@ -1,17 +1,14 @@
 module-ingest
-High-performance, zero-third-party TCP/IP ingest pipeline for Module.
 
-Supports:
+Targets:
 
 ⚡ 10,000+ packet/sec TCP ingestion
 
-🧠 Pluggable consumers (disk, AI, cloud)
+🧠 Pluggable subscribers (disk, AI, cloud)
 
 💽 Ring buffer + disk-backed queue with write-ahead logging
 
 🔒 Built-in auth and identity layer
-
-🛠️ Fully modular, no external packages (just Go stdlib)
 
 ### Project Structure & File Breakdown
 
@@ -19,7 +16,7 @@ Supports:
 
 | File	                  | Description                                                                                                     |
 |------------------------|-----------------------------------------------------------------------------------------------------------------|
-| ingest-server/main.go	 | Main TCP server. Initializes config, starts listener, queue, and consumer manager.                              |
+| server/main.go	 | Main TCP server. Initializes config, starts listener, queue, and consumer manager.                              |
 | queue-worker/main.go	  | Optional standalone consumer that reads from disk queue and processes entries (used in recovery or batch jobs). |
 | recover-dump/main.go	  | Utility to replay or inspect a corrupted .wal or .queue file for recovery/debugging.                            |
 
