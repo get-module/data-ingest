@@ -1,14 +1,13 @@
 # module-ingest
 
 Targets:
+* 10,000+ packet/sec TCP ingestion
 
-⚡ 10,000+ packet/sec TCP ingestion
+* Pluggable subscribers (disk, AI, cloud)
 
-🧠 Pluggable subscribers (disk, AI, cloud)
+* Ring buffer + disk-backed queue with write-ahead logging
 
-💽 Ring buffer + disk-backed queue with write-ahead logging
-
-🔒 Built-in auth and identity layer
+* Built-in auth and identity layer
 
 ### Project Structure & File Breakdown
 
@@ -117,7 +116,7 @@ Targets:
 | ingest_test.go	   | Validates ingestion path from network → memory → disk. |
 | recovery_test.go	 | Tests queue restart and WAL recovery after crash.      |
 
-**🔐 Security**
+**luh Security**
 
 Token-based identity tied to physical modules or sensor Cores.
 
